@@ -1,0 +1,38 @@
+.converter-shell { min-height: var(--app-viewport-height); background: #f4f6fb; color: #172033; }
+.converter-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 28px; color: #fff; background: #172033; }
+.converter-topbar h1 { margin: 0; font-size: 20px; }
+.converter-topbar p { margin: 4px 0 0; color: #b9c3d6; font-size: 12px; }
+.converter-main { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 18px; padding: 22px; }
+.converter-panel { padding: 18px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 3px rgba(15, 23, 42, .06); }
+.converter-sidebar { align-self: start; position: sticky; top: 18px; }
+.converter-sidebar h2, .converter-editor h2 { margin: 0 0 12px; font-size: 16px; }
+.converter-meta { display: grid; gap: 12px; }
+.converter-meta label, .converter-editor label { display: grid; gap: 6px; color: #667085; font-size: 12px; }
+.converter-meta input, .converter-meta textarea, .converter-editor input, .converter-editor textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; color: #172033; background: #f8fafc; border: 1px solid #d9dee8; border-radius: 8px; font: inherit; font-size: 13px; }
+.converter-meta textarea { resize: vertical; }
+.converter-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.converter-status { margin: 12px 0 0; padding: 10px; color: #2453a6; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; font-size: 12px; line-height: 1.5; }
+.converter-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
+.converter-stat { padding: 10px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; }
+.converter-stat strong { display: block; color: #172033; font-size: 18px; }
+.converter-stat span { color: #667085; font-size: 11px; }
+.converter-chapter { display: grid; gap: 10px; margin-top: 14px; padding: 14px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; }
+.converter-chapter-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.converter-chapter-head strong { color: #172033; font-size: 14px; }
+.converter-muted { color: #667085; font-size: 12px; line-height: 1.6; }
+.converter-empty { padding: 70px 20px; color: #667085; text-align: center; }
+@media (max-width: 900px) { .converter-main { grid-template-columns: 1fr; } .converter-sidebar { position: static; } }
+.converter-alert { margin: 12px 0; padding: 10px; color: #9a3412; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; font-size: 12px; line-height: 1.5; }
+.converter-pdf-index { margin: 14px 0; padding: 14px; background: #f8fafc; border: 1px solid #dbe4f0; border-radius: 10px; }
+.converter-pdf-index-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.converter-pdf-index h3 { margin: 0; color: #172033; font-size: 14px; }
+.converter-pdf-index p { margin: 5px 0 0; color: #667085; font-size: 12px; line-height: 1.55; }
+.converter-pdf-index-list { display: grid; gap: 8px; margin-top: 12px; }
+.converter-pdf-index-row { display: grid; grid-template-columns: minmax(160px, 2fr) 80px 110px 90px; gap: 10px; align-items: end; padding: 10px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
+.converter-pdf-index-row label { display: grid; gap: 5px; color: #667085; font-size: 11px; }
+.converter-pdf-index-row span { min-height: 33px; padding: 9px 10px; box-sizing: border-box; color: #344054; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 13px; }
+.converter-pdf-index-row input { width: 100%; min-height: 33px; box-sizing: border-box; padding: 8px 9px; color: #172033; background: #f8fafc; border: 1px solid #d9dee8; border-radius: 8px; font: inherit; font-size: 13px; }
+.converter-pdf-confidence { grid-column: 1 / -1; }
+.converter-pdf-confidence.is-high { color: #167044; }
+.converter-pdf-confidence.is-low, .converter-pdf-confidence.is-medium { color: #9a6700; }
+@media (max-width: 760px) { .converter-pdf-index-head { display: grid; } .converter-pdf-index-row { grid-template-columns: 1fr 1fr; } }
