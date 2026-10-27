@@ -56,7 +56,7 @@ npm.cmd run tauri build -- --config src-tauri\tauri.converter.conf.json --bundle
 npm.cmd run tauri build -- --bundles nsis
 ```
 
-⚠️ 转换器必须先于主程序构建，且每次打包后需把 `src-tauri\target\release\reading-agent.exe`
+⚠️ 转换器必须先于主程序构建，且每次打包后需把 `src-tauri\target\release\lang-study-assistant.exe`
 复制成对应程序名，否则后一次打包会覆盖前一次的结果。详见 `CURRENT_HANDOFF.md`。
 
 发布前确认目标程序已关闭；不得强制结束用户进程。

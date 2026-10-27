@@ -172,7 +172,7 @@ cargo check --manifest-path src-tauri\Cargo.toml
 npm.cmd run tauri build -- --bundles nsis
 ```
 
-构建后用 `src-tauri\target\release\reading-agent.exe` 更新根目录唯一正式程序；若 EXE 被占用，先让用户正常退出程序，不要强制结束。
+构建后用 `src-tauri\target\release\lang-study-assistant.exe` 更新根目录唯一正式程序；若 EXE 被占用，先让用户正常退出程序，不要强制结束。
 
 ## 稳定性重构约定（2026-08-08）
 

@@ -2,6 +2,20 @@
 
 # 架构说明
 
+## 命名与标识（改动前必读）
+
+项目对外名为 **lang-study-assistant**（中文产品名仍为「阅读学习助手」），
+但下列标识**必须保持不变**，改动会导致用户数据丢失或文件无法打开：
+
+| 标识 | 当前值 | 位置 | 不能改的原因 |
+| --- | --- | --- | --- |
+| `identifier` | `com.readingagent.app` | `src-tauri/tauri.conf.json`、`tauri.converter.conf.json` | 决定用户数据目录 `%APPDATA%\com.readingagent.app\`。一旦改动，已安装用户的书架、词卡、复习记录会因路径变化而「消失」。 |
+| 书籍包格式标识 | `reading-agent-book` | `src/features/chapters/bookContentPackage.ts` | 已导出的 `.readingbook` 文件内嵌此值，改动会导致旧文件无法导入。 |
+| 备份格式标识 | `reading-agent-backup` | `src-tauri/src/migration_service.rs` | 已导出的备份包内嵌此值，改动会导致旧备份无法恢复。 |
+
+可以随项目名调整的部分：`package.json` 的 `name`、`Cargo.toml` 的 crate 名与 `[lib] name`、
+`bundle.publisher`、文档标题、GitHub 仓库名。这些不影响用户数据。
+
 ## 技术栈
 
 - 桌面端：Tauri 2。
@@ -83,7 +97,7 @@
 
 1. 确认 `阅读学习助手.exe` 已关闭。
 2. 在 `reading-agent` 下运行构建、测试和 NSIS 打包。
-3. 用 `src-tauri\target\release\reading-agent.exe` 覆盖 `F:\英语阅读助手\阅读学习助手.exe`。
+3. 用 `src-tauri\target\release\lang-study-assistant.exe` 覆盖 `F:\英语阅读助手\阅读学习助手.exe`。
 4. 不要生成多个“正式版”可执行文件；根目录只保留这一份正式程序。
 
 ## WordNet 与通用资源导入

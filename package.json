@@ -1,5 +1,6 @@
 {
-    "name": "reading-agent",
+    "name": "lang-study-assistant",
+    "description": "本地优先的多语言阅读学习助手",
     "private": true,
     "version": "1.0.0",
     "type": "module",

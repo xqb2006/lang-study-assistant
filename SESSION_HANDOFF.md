@@ -69,7 +69,7 @@ Get-Process -Name '英语阅读助手' -ErrorAction SilentlyContinue
 如果正在运行，不能强制结束，也不能覆盖。程序已关闭后，用以下文件覆盖：
 
 ```text
-src-tauri\target\release\reading-agent.exe
+src-tauri\target\release\lang-study-assistant.exe
 ```
 
 ## 交接时优先检查
@@ -297,7 +297,7 @@ src-tauri\target\release\reading-agent.exe
 
 ### 发布产物（2026-08-06 15:35）
 - NSIS 安装包：`src-tauri/target/release/bundle/nsis/阅读学习助手_0.1.1_x64-setup.exe`。
-- 根目录唯一正式程序：`F:/英语阅读助手/阅读学习助手.exe`，已由 `src-tauri/target/release/reading-agent.exe` 覆盖，大小 `19,057,664` bytes。
+- 根目录唯一正式程序：`F:/英语阅读助手/阅读学习助手.exe`，已由 `src-tauri/target/release/lang-study-assistant.exe` 覆盖，大小 `19,057,664` bytes。
 - 注意：根目录不放安装包；安装包仅保留在构建输出目录。
 
 
@@ -546,7 +546,7 @@ npm.cmd run test:ui                                -> 14 passed
 
 ## 2026-08-08：正式发布构建
 
-- 构建前已确认 `阅读学习助手.exe` 与 `reading-agent.exe` 均未运行。
+- 构建前已确认 `阅读学习助手.exe` 与 `lang-study-assistant.exe` 均未运行。
 - 已使用 `npm.cmd run tauri build -- --bundles nsis` 完成发布构建。
 - 根目录唯一正式程序已替换：`F:\英语阅读助手\阅读学习助手.exe`，生成时间为 2026-08-08 08:28:46，大小为 19,158,528 字节。
 - NSIS 安装包：`src-tauri\target\release\bundle\nsis\阅读学习助手_0.1.1_x64-setup.exe`，生成时间为 2026-08-08 08:28:44。

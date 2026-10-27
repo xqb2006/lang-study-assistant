@@ -100,10 +100,10 @@ if (-not $SkipTests) {
 # ---------------------------------------------------------------- 构建
 # 顺序不可调整：转换器在前，主程序在后。
 #
-# 两个程序共用同一个 Rust release EXE（reading-agent.exe），区别只在打包时
+# 两个程序共用同一个 Rust release EXE（lang-study-assistant.exe），区别只在打包时
 # 注入的前端资源。因此每次打包后必须立刻把该 EXE 复制成对应的分发文件，
 # 否则第二次打包会覆盖第一次的结果。
-$productExe = Join-Path $root "src-tauri\target\release\reading-agent.exe"
+$productExe = Join-Path $root "src-tauri\target\release\lang-study-assistant.exe"
 $distDir = Join-Path $root "dist-release"
 if (-not (Test-Path $distDir)) { New-Item -ItemType Directory -Path $distDir | Out-Null }
 

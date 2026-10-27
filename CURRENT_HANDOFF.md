@@ -8,7 +8,7 @@
 - 独立转换器：`F:\英语阅读助手\阅读内容转换器.exe`
 - 主程序产品名与窗口标题：`阅读学习助手`
 - 源码工作区：`F:\英语阅读助手\reading-agent`
-- Tauri 编译中间产物仍为 `src-tauri\target\release\reading-agent.exe`，这是内部构建名，不是对用户发布的文件名。
+- Tauri 编译中间产物为 `src-tauri\target\release\lang-study-assistant.exe`（由 crate 名决定），这是内部构建名，不是对用户发布的文件名。
 
 ## 2026-08-28 Android ARM64 测试包与移动端 MVP
 
@@ -27,7 +27,7 @@
 - 根因：学习模式的组件状态可正常打开，但学习区渲染在整篇双语正文之后；长文章中点击入口后，视口不会自动移动，因此表现为“打不开”。
 - 修复：`src/App.tsx` 为学习区增加可聚焦引用；`learningOpen` 变为开启状态后，使用 `scrollIntoView` 自动平滑定位并聚焦学习区。
 - 验证：`npm.cmd run test:ui` 通过（27 个测试文件、97 个测试）；`npm.cmd run build` 通过；`npm.cmd run tauri build -- --bundles nsis` 通过，并生成 NSIS 安装包。
-- 发布流程：不要用 `cargo build --release` 直接覆盖正式 EXE；它会遗漏 Tauri CLI 注入的正式前端资源配置，程序会错误请求开发服务器 `127.0.0.1`。必须通过 `npm.cmd run tauri build -- --bundles nsis` 打包后，使用 `src-tauri\target\release\reading-agent.exe` 覆盖正式文件。
+- 发布流程：不要用 `cargo build --release` 直接覆盖正式 EXE；它会遗漏 Tauri CLI 注入的正式前端资源配置，程序会错误请求开发服务器 `127.0.0.1`。必须通过 `npm.cmd run tauri build -- --bundles nsis` 打包后，使用 `src-tauri\target\release\lang-study-assistant.exe` 覆盖正式文件。
 - 正式主程序已更新：`F:\英语阅读助手\阅读学习助手.exe`，SHA-256 为 `797FAE6005BF75A0809A0E8CAE41EE90AC68DED48912DBF365F33C203EACEFC6`；已启动确认窗口响应正常。
 
 ## 2026-08-16 桌宠精灵图形象包
@@ -108,7 +108,7 @@
 ### 当前发布状态
 
 - 主程序已发布到 `F:\英语阅读助手\阅读学习助手.exe`，本轮更新于 2026-08-15。
-- 当前发布 EXE 已完成启动检查且正在运行；SHA-256 为 `EC9FA94B4BF63989BCB22C30C00614CF735B4E23F01F0526FCBE78F11FAFBAFA`，与 `src-tauri\target\release\reading-agent.exe` 一致。
+- 当前发布 EXE 已完成启动检查且正在运行；SHA-256 为 `EC9FA94B4BF63989BCB22C30C00614CF735B4E23F01F0526FCBE78F11FAFBAFA`，与 `src-tauri\target\release\lang-study-assistant.exe` 一致。
 - 主程序 NSIS 安装包：`src-tauri\target\release\bundle\nsis\阅读学习助手_0.1.1_x64-setup.exe`。
 
 ### 本轮验证基线
@@ -145,9 +145,9 @@ powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1
 脚本会自动完成以下全部步骤（含类型检查、前端测试、Rust 测试、版本号一致性校验）：
 
 1. `npm.cmd run tauri build -- --config src-tauri\tauri.converter.conf.json --bundles nsis`
-2. 将 `src-tauri\target\release\reading-agent.exe` 复制为 `dist-release\阅读内容转换器.exe`
+2. 将 `src-tauri\target\release\lang-study-assistant.exe` 复制为 `dist-release\阅读内容转换器.exe`
 3. `npm.cmd run tauri build -- --bundles nsis`
-4. 将 `src-tauri\target\release\reading-agent.exe` 复制为 `dist-release\阅读学习助手.exe`
+4. 将 `src-tauri\target\release\lang-study-assistant.exe` 复制为 `dist-release\阅读学习助手.exe`
 
 转换器和主程序共用同一个 Rust release EXE，只有前端资源不同，因此**每次打包后必须立刻复制**，
 否则第二次打包会覆盖第一次的结果。顺序不可颠倒。

@@ -32,4 +32,4 @@
 
 - 主程序：`F:\英语阅读助手\阅读学习助手.exe`
 - 转换器：`F:\英语阅读助手\阅读内容转换器.exe`
-- 转换器安装包：`reading-agent/src-tauri/target/release/bundle/nsis/阅读内容转换器_1.0.0_x64-setup.exe`
+- 转换器安装包：`lang-study-assistant/src-tauri/target/release/bundle/nsis/阅读内容转换器_1.0.0_x64-setup.exe`

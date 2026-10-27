@@ -1,11 +1,11 @@
 [package]
-name = "reading-agent"
+name = "lang-study-assistant"
 version = "1.0.0"
-description = "Local-first English reading assistant"
+description = "Local-first language study assistant with reading, vocabulary and review"
 edition = "2021"
 
 [lib]
-name = "reading_agent_lib"
+name = "lang_study_assistant_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -26,4 +26,6 @@ owned_ttf_parser = "0.19"
 csv = "1"
 flate2 = "1"
 tar = "0.4"
+
+[target.'cfg(windows)'.dependencies]
 windows = { version = "0.61.3", features = ["Foundation", "Globalization", "Graphics_Imaging", "Media_Ocr", "Storage", "Storage_Streams"] }
