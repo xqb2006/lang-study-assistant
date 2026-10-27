@@ -5,5 +5,5 @@
   "identifier": "com.readingagent.app",
   "build": { "beforeDevCommand": "npm run dev -- --host 127.0.0.1", "devUrl": "http://127.0.0.1:1420", "beforeBuildCommand": "npm run build", "frontendDist": "../dist" },
   "app": { "windows": [{ "title": "阅读学习助手", "width": 1200, "height": 760, "minWidth": 960, "minHeight": 560 }], "security": { "csp": null } },
-  "bundle": { "active": true, "targets": "all", "publisher": "英语阅读助手 contributors", "copyright": "Copyright © 2026 英语阅读助手 contributors", "shortDescription": "本地优先的英语阅读与词汇学习工具", "longDescription": "本地优先的英语阅读学习工具，支持书籍导入、阅读与译文对照、选词查词、生词卡复习与 AI 解析。所有阅读数据保存在本机。", "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.ico"] }
+  "bundle": { "active": true, "targets": "all", "publisher": "英语阅读助手 contributors", "copyright": "Copyright © 2026 英语阅读助手 contributors", "shortDescription": "本地优先的英语阅读与词汇学习工具", "longDescription": "本地优先的英语阅读学习工具，支持书籍导入、阅读与译文对照、选词查词、生词卡复习与 AI 解析。所有阅读数据保存在本机，不注册账号即可使用。当前版本支持英语，多语言支持在规划中。", "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.ico"] }
 }

@@ -30,3 +30,7 @@ tmp
 *.sw?
 
 dist-release/
+
+# Tauri 移动端生成的工程目录（构建产物，不应入库）
+src-tauri/gen/
+

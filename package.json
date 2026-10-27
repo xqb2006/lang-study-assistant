@@ -1,6 +1,6 @@
 {
     "name": "lang-study-assistant",
-    "description": "本地优先的多语言阅读学习助手",
+    "description": "本地优先的英语阅读学习助手（多语言支持在规划中）",
     "private": true,
     "version": "1.0.0",
     "type": "module",

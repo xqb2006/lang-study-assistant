@@ -9,9 +9,12 @@
 
 | 标识 | 当前值 | 位置 | 不能改的原因 |
 | --- | --- | --- | --- |
-| `identifier` | `com.readingagent.app` | `src-tauri/tauri.conf.json`、`tauri.converter.conf.json` | 决定用户数据目录 `%APPDATA%\com.readingagent.app\`。一旦改动，已安装用户的书架、词卡、复习记录会因路径变化而「消失」。 |
+| **数据目录名** | `ReadingAgent` | `src-tauri/src/paths.rs` 的 `app_data_dir()` | **最关键的一处。** 实际用户数据路径是 `%APPDATA%\ReadingAgent\`，数据库、AI 配置、备份全部由此函数定位（`database.rs`、`ai_config.rs`、`migration_service.rs`）。改名会导致所有已安装用户的数据「消失」。 |
+| `identifier` | `com.readingagent.app` | `src-tauri/tauri.conf.json`、`tauri.converter.conf.json` | Tauri 用于其它资源路径与安装包标识，改动同样有风险。注意它**不是**数据目录的决定因素。 |
 | 书籍包格式标识 | `reading-agent-book` | `src/features/chapters/bookContentPackage.ts` | 已导出的 `.readingbook` 文件内嵌此值，改动会导致旧文件无法导入。 |
 | 备份格式标识 | `reading-agent-backup` | `src-tauri/src/migration_service.rs` | 已导出的备份包内嵌此值，改动会导致旧备份无法恢复。 |
+
+如需调整数据目录名，**必须同时提供旧目录的自动迁移逻辑**（读取旧路径 → 搬运 → 校验 → 保留原目录），不可直接修改字符串。
 
 可以随项目名调整的部分：`package.json` 的 `name`、`Cargo.toml` 的 crate 名与 `[lib] name`、
 `bundle.publisher`、文档标题、GitHub 仓库名。这些不影响用户数据。
