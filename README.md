@@ -36,12 +36,39 @@ F:\英语阅读助手\阅读内容转换器.exe
 
 ## 验证与发布
 
+一条命令完成全部校验与打包（推荐）：
+
 ```powershell
 Set-Location 'F:\英语阅读助手\reading-agent'
+powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1
+```
+
+脚本会依次执行类型检查、前端测试、Rust 测试、版本号一致性校验，然后按正确顺序
+构建两个程序并输出到 `dist-release\`。安装包位于 `src-tauri\target\release\bundle\nsis\`。
+
+手动分步执行：
+
+```powershell
+npm.cmd run typecheck
 npm.cmd run test:ui
-npm.cmd run build
 cargo test --manifest-path src-tauri\Cargo.toml
+npm.cmd run tauri build -- --config src-tauri\tauri.converter.conf.json --bundles nsis
 npm.cmd run tauri build -- --bundles nsis
 ```
 
-发布主程序前确认 `阅读学习助手.exe` 已关闭；不得强制结束用户进程。
+⚠️ 转换器必须先于主程序构建，且每次打包后需把 `src-tauri\target\release\reading-agent.exe`
+复制成对应程序名，否则后一次打包会覆盖前一次的结果。详见 `CURRENT_HANDOFF.md`。
+
+发布前确认目标程序已关闭；不得强制结束用户进程。
+
+## 许可证与隐私
+
+- 本项目基于 [MIT 许可证](LICENSE) 开源。
+- AI 功能会将你提交的文本发送至**你自行配置的第三方 AI 服务**，详见 [隐私说明](PRIVACY.md)。
+- 不配置 AI 服务时，全部功能可离线使用，所有阅读数据仅保存在本机。
+
+## 安装说明
+
+Windows 安装包**未包含数字签名证书**，首次运行可能出现 SmartScreen「未知发布者」提示。
+这是未购买代码签名证书所致，并非文件被篡改。如介意，可从源码自行构建。
+
