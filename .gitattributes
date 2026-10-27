@@ -1,0 +1,25 @@
+# 换行符统一交给 git 处理，避免跨机器出现整文件假 diff
+* text=auto eol=lf
+
+# Windows 脚本保留 CRLF，否则 PowerShell 可能解析出错
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制资源不做换行转换
+*.png binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.zip binary
+*.readingbook binary
+
+# 锁文件不参与 diff 统计
+package-lock.json -diff linguist-generated
+Cargo.lock -diff linguist-generated

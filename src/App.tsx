@@ -44,6 +44,7 @@ import { PronunciationButton } from "./features/cards/PronunciationButton";
 import { useShortcutWorkspace } from "./features/shortcuts/useShortcutWorkspace";
 import { useExportActions } from "./features/export/useExportActions";
 import { AppSidebar, type ShellView } from "./features/shell/AppSidebar";
+import { MobileNavigation } from "./features/shell/MobileNavigation";
 import { useOverlayState } from "./features/shell/useOverlayState";
 import { SettingsModal } from "./features/settings/SettingsModal";
 import { useSettingsWorkspace } from "./features/settings/useSettingsWorkspace";
@@ -51,6 +52,9 @@ import { appInvoke } from "./services/appInvoke";
 import { ANALYSIS_CACHE_LIMIT_KEY, DEFAULT_ANALYSIS_CACHE_LIMIT } from "./features/cards/analysisCache";
 import { ReadingAssistantModal } from "./features/assistant/ReadingAssistantModal";
 import { ReaderAssistantCompanion } from "./features/assistant/ReaderAssistantCompanion";
+
+// 仅在本地开发构建中显示，正式发布包不会出现。
+const TEST_BUILD_LABEL = import.meta.env.DEV ? "测试构建 · 本地开发" : "";
 
 const LearningWorkspace = lazy(async () => {
   const module = await import("./components/LearningWorkspace");
@@ -86,15 +90,6 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("准备就绪");
   const [focusedReviewCardId, setFocusedReviewCardId] = useState<number | null>(null);
-  const focusReaderCard = (cardId: number) => {
-    setFocusedReviewCardId(cardId);
-    setActiveView("library");
-    window.requestAnimationFrame(() => {
-      window.setTimeout(() => {
-        document.getElementById(`word-card-${cardId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 0);
-    });
-  };
   const [analysisCacheLimit, setAnalysisCacheLimit] = useState(() => {
     const stored = window.localStorage.getItem(ANALYSIS_CACHE_LIMIT_KEY);
     if (stored === null) return DEFAULT_ANALYSIS_CACHE_LIMIT;
@@ -103,6 +98,7 @@ export default function App() {
   });
   const [displayLanguageOpen, setDisplayLanguageOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [mobileLibraryView, setMobileLibraryView] = useState<"shelf" | "reader">("shelf");
   const [assistantIdentityVersion, setAssistantIdentityVersion] = useState(0);
   const [currentParagraph, setCurrentParagraph] = useState<ReaderParagraphContext | null>(null);
   const {
@@ -153,6 +149,7 @@ export default function App() {
   }, [article?.id, learningOpen]);
   const {
     cardsCollapsed,
+    hideCardPanel,
     listCollapsed,
     navCollapsed,
     startCardPanelResize,
@@ -162,6 +159,17 @@ export default function App() {
     toggleNavigation,
     workspaceStyle,
   } = useReaderLayout();
+  const focusReaderCard = (cardId: number) => {
+    setFocusedReviewCardId(cardId);
+    setActiveView("library");
+    setMobileLibraryView("reader");
+    showCardPanel();
+    window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        document.getElementById(`word-card-${cardId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 240);
+    });
+  };
   const {
     cards: reviewCards,
     loading: reviewLoading,
@@ -366,6 +374,9 @@ export default function App() {
             />
           </label>
           <span role="status">{notice}</span>
+          {TEST_BUILD_LABEL ? (
+            <small className="android-build-badge">{TEST_BUILD_LABEL}</small>
+          ) : null}
           <button
             className="icon-button"
             aria-label={workspaceT(displayLanguage, "dictionarySettings")}
@@ -375,7 +386,7 @@ export default function App() {
           </button>
         </header>
         <div
-          className={`workspace ${listCollapsed ? "list-collapsed" : ""} ${cardsCollapsed ? "cards-collapsed" : ""}`}
+          className={`workspace ${listCollapsed ? "list-collapsed" : ""} ${cardsCollapsed ? "cards-collapsed" : ""} mobile-${mobileLibraryView}`}
           style={workspaceStyle}
         >
           <Bookshelf
@@ -383,8 +394,13 @@ export default function App() {
            
             refreshKey={`${bookshelfVersion}:${articles.map((item) => item.id).join(",")}`}
             onOpenArticle={(id) => {
-              if (id) void load(id);
-              else clearCurrentArticle();
+              if (id) {
+                setMobileLibraryView("reader");
+                void load(id);
+              } else {
+                setMobileLibraryView("shelf");
+                clearCurrentArticle();
+              }
             }}
             onNewBook={openBookCreation}
             onAddChapter={(book) => setChapterBook(book)}
@@ -426,10 +442,14 @@ export default function App() {
                   </div>
                   <div className="reader-actions">
                     <button
-                      className="icon-button"
+                      className="icon-button reader-card-panel-toggle"
+                      type="button"
+                      aria-label={cardsCollapsed ? "打开单词卡片" : "收起单词卡片"}
+                      title={cardsCollapsed ? "打开单词卡片" : "收起单词卡片"}
                       onClick={toggleCardPanel}
                     >
                       {cardsCollapsed ? <ChevronLeft /> : <ChevronRight />}
+                      <span className="reader-card-panel-toggle-label">{cardsCollapsed ? "单词卡" : "收起"}</span>
                     </button>
                   </div>
                 </div>
@@ -484,14 +504,34 @@ export default function App() {
               />
             )}
           </section>
-          <section className="cards-panel"> 
+          {!cardsCollapsed && (
+            <button
+              className="card-panel-backdrop"
+              type="button"
+              aria-label="关闭单词卡片面板"
+              onClick={hideCardPanel}
+            />
+          )}
+          <section className="cards-panel" aria-hidden={cardsCollapsed}>
             <div className="card-panel-resize-handle" onPointerDown={startCardPanelResize} role="separator" aria-orientation="vertical" aria-label="Resize word cards" />
             <div className="section-heading">
               <div>
                 <p>{workspaceT(displayLanguage, "learningTips")}</p>
                 <h1>{workspaceT(displayLanguage, "wordCards")}</h1>
               </div>
-              <b>{cards.length}</b>
+              <div className="card-panel-heading-actions">
+                <b>{cards.length}</b>
+                <button
+                  className="icon-button card-panel-close"
+                  type="button"
+                  aria-label="收起单词卡片"
+                  title="收起单词卡片"
+                  onClick={hideCardPanel}
+                >
+                  <ChevronRight size={16} />
+                  <span>收起</span>
+                </button>
+              </div>
             </div>
             <SelectionLearningPanel
               aiConfigured={aiConfigured}
@@ -754,6 +794,22 @@ export default function App() {
       {activeView === "library" && article && !assistantOpen && (
         <ReaderAssistantCompanion key={assistantIdentityVersion} onOpen={() => setAssistantOpen(true)} />
       )}
+      <MobileNavigation
+        activeView={activeView}
+        assistantAvailable={Boolean(article)}
+        libraryView={mobileLibraryView}
+        onOpenAssistant={() => setAssistantOpen(true)}
+        onOpenReader={() => {
+          setActiveView("library");
+          setMobileLibraryView("reader");
+        }}
+        onOpenReview={() => setActiveView("vocabulary")}
+        onOpenSettings={() => setSettingsOpen(true)}
+        onOpenShelf={() => {
+          setActiveView("library");
+          setMobileLibraryView("shelf");
+        }}
+      />
       {chapterPhotoOpen && (
         <PhotoImportModal
           aiConfigured={aiConfigured}
@@ -931,9 +987,3 @@ function EmptyState({
     </div>
   );
 }
-
-
-
-
-
-

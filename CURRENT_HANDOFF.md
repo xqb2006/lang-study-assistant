@@ -1,4 +1,4 @@
-# 当前项目交接（2026-08-16）
+﻿# 当前项目交接（2026-08-28）
 
 > 这是当前权威交接文档。旧的 `SESSION_HANDOFF.md`、`PROJECT_STATUS.md` 和 `DEVELOPMENT_GUIDE.md` 保存历史决策；如有冲突，以本文为准。
 
@@ -9,6 +9,18 @@
 - 主程序产品名与窗口标题：`阅读学习助手`
 - 源码工作区：`F:\英语阅读助手\reading-agent`
 - Tauri 编译中间产物仍为 `src-tauri\target\release\reading-agent.exe`，这是内部构建名，不是对用户发布的文件名。
+
+## 2026-08-28 Android ARM64 测试包与移动端 MVP
+
+- 本轮仅适配“阅读学习助手”，不将“阅读内容转换器”移植到 Android；两个程序的职责边界和 `.readingbook` 交换格式保持不变。
+- 移动端前端已新增底部导航：书架、阅读、复习、助手、我的；未打开文章时阅读与助手入口禁用，手机点击章节会自动切换到阅读页。小屏幕下书架与阅读页互斥，平板/桌面原有多栏布局不主动重做。
+- Android 非 Windows 平台使用应用数据目录；Windows 继续使用原 `ReadingAgent` 数据目录，不迁移或破坏现有书架、词卡与 AI 配置。Windows 本地 OCR 原实现保留；Android 调用单章节图片/PDF 本地 OCR 时会明确提示移动端暂不支持，建议使用 Windows 主程序完成识别。
+- 已将 `windows` crate 限定为 Windows 目标依赖，数据库初始化移入 Tauri `setup`，并清理了 Android 编译中的 Windows API 条件编译警告。
+- 首个可安装测试包：`F:\英语阅读助手\阅读学习助手-Android-ARM64-v1.0.0-test.apk`。它是 ARM64（绝大多数近年 Android 手机/平板）测试包，使用本机 Android Debug 证书签名，不是可对外发布的正式签名包。
+- 测试包验证：ARM64 release Rust 库构建通过；前端 `npm.cmd run build` 通过；APK 已通过 `zipalign` 和 Android v2/v3 签名校验，包内确认包含 `lib/arm64-v8a/libreading_agent_lib.so` 与 `assets/index.html`。
+- 可复现打包脚本：`scripts\build-android-arm64-test.ps1`。在 PowerShell 中从源码目录运行：`powershell -ExecutionPolicy Bypass -File .\scripts\build-android-arm64-test.ps1`。脚本会生成前端静态资源、ARM64 release 动态库、无需开发服务器的 APK，并用调试证书签名测试包。
+- Windows 中文路径会触发 Android Gradle 的路径保护检查，脚本会补充 `android.overridePathCheck=true`。Tauri 的默认 Windows 符号链接流程仍要求开发者模式；当前脚本改为复制 release `.so` 并跳过仅用于 Tauri 开发服务的 `rustBuildArm64Release`，因此不需要开启开发者模式。
+- 当前仍未做真机验证：`.readingbook` 导入、书架/阅读切换、学习模式、词卡、AI 助手、返回键、横竖屏、Android 文件选择器和不同平板尺寸都需要在真机或模拟器上继续测试。两个 Windows 正式 EXE 本轮未更新。
 
 ## 2026-08-27 学习模式可见性修复
 
@@ -124,14 +136,24 @@ cargo test --manifest-path src-tauri\Cargo.toml
 
 ## 打包顺序
 
-转换器和主程序共用同一个 Rust release EXE，必须按以下顺序发布：
+**已脚本化，推荐直接使用：**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\build-release.ps1
+```
+
+脚本会自动完成以下全部步骤（含类型检查、前端测试、Rust 测试、版本号一致性校验）：
 
 1. `npm.cmd run tauri build -- --config src-tauri\tauri.converter.conf.json --bundles nsis`
-2. 将 `src-tauri\target\release\reading-agent.exe` 复制为 `F:\英语阅读助手\阅读内容转换器.exe`
+2. 将 `src-tauri\target\release\reading-agent.exe` 复制为 `dist-release\阅读内容转换器.exe`
 3. `npm.cmd run tauri build -- --bundles nsis`
-4. 将 `src-tauri\target\release\reading-agent.exe` 复制为 `F:\英语阅读助手\阅读学习助手.exe`
+4. 将 `src-tauri\target\release\reading-agent.exe` 复制为 `dist-release\阅读学习助手.exe`
 
+转换器和主程序共用同一个 Rust release EXE，只有前端资源不同，因此**每次打包后必须立刻复制**，
+否则第二次打包会覆盖第一次的结果。顺序不可颠倒。
 覆盖文件前必须确认对应程序已关闭，不要强制结束用户进程。
+
+`dist-release\` 为可分发程序目录，NSIS 安装包在同级 `src-tauri\target\release\bundle\nsis\`。
 
 ## 2026-08-17：阅读辅助浮窗
 
@@ -314,3 +336,36 @@ cargo test --manifest-path src-tauri\Cargo.toml
 - 正式主程序已更新：`F:\英语阅读助手\阅读学习助手.exe`，SHA-256：`60A84882F3D9630B3BF4C8E574C3889ECE2DC232AD6A239F129665DC4535E080`。
 - 转换器未修改：`F:\英语阅读助手\阅读内容转换器.exe`，SHA-256：`8FCAAF1F9ADC1C0A94C0BF9532BC1161BFE650B9D9B04627BD649B6CA4FC5C54`。
 - 已知限制：窗口比例基于 Tauri WebView 可视区，系统级任务栏位置由 Windows 工作区决定；AI 回答贴切程度仍受模型能力影响，但当前已将任务意图明确传入后端。
+
+## 2026-08-29 Android Studio 直接运行与合规基线
+
+- Android 端仅适配“阅读学习助手”；转换器、整书原始文件解析边界与 `.readingbook` 交换格式不变。
+- 唯一 Android Studio 直接运行工程为 `F:\ReadingAgentAndroidStudio`。不要在 `src-tauri\gen\android` 打开或运行，它会进入 Tauri `rustBuild*` 开发态链路并可能请求 `127.0.0.1:1420`。
+- 首次初始化：在源仓库执行 `scripts\bootstrap-android-studio-project.ps1`。它从已验证的静态离线工程复制到 F 盘，不删除 C 盘来源工程，也会写入无 BOM 的 `local.properties`。
+- 源码更新后：执行 `scripts\sync-android-studio-project.ps1 -RefreshAssets -Confirm -BuildApk`。该脚本重建前端、用 `tauri/custom-protocol` 构建 ARM64/x86_64 原生库，并更新 F 盘静态工程；资源替换必须显式确认。
+- 因 Tauri 插件 Java/Kotlin 源码位于 C 盘 Cargo 缓存，而 Android Studio 工程在 F 盘，必须保留 `kotlin.incremental=false` 与 `kotlin.compiler.execution.strategy=in-process`；否则 Kotlin 会报 `this and base files have different roots`。
+- `local.properties` 不能用带 BOM 的 UTF-8 写入，否则 Gradle 读不到 `sdk.dir`。当前脚本使用无 BOM 的 `sdk.dir=C:/...` 格式。
+- `F:\ReadingAgentAndroidStudio\app\build\outputs\apk\debug\app-debug.apk` 已于 2026-08-29 离线 `clean + :app:assembleDebug` 重建通过，且在清空 `ANDROID_HOME`/`ANDROID_SDK_ROOT` 的独立进程中仍能构建。APK 基础校验（包名、v2 签名、zipalign、离线 assets、ARM64/x86_64 `.so`）通过；SHA-256：`2DDFBB730463E581CEF0EA5C0B39AFF4F0CAA9561A9381EA272CA66218DFFE20`。
+- 当前没有连接的 adb 设备/模拟器，故本轮未新增运行时启动验证；此前 x86_64 模拟器验证过不访问 `127.0.0.1:1420`。正式发布前仍需完成真机文件选择、横竖屏/平板、返回手势、断网、16 KB 页大小、release 签名/AAB、隐私声明测试。
+- Android SDK/NDK 当前仍位于 `C:\Users\Lenovo\AppData\Local\Android\Sdk`；迁移到 F 盘需单独确认复制、切换和删除旧目录，不能直接删除。
+- 2026-08-29 补充移动端修复：`MainActivity` 在 WebView 创建后消费四边 `systemBars` Insets，避免时间、电量与右侧手势区遮挡正文和按钮；手机/窄屏隐藏已不可见的右侧词卡收起按钮及桌面词卡栏，锁定横向溢出。同步脚本会自动复制该 Activity 到 F 盘 Android Studio 工程。
+## 2026-08-29 Android 系统栏与词卡抽屉重构
+
+- Android 15 的边到边模式保留，但不要再在 `MainActivity.onWebViewCreate` 中用 `setPadding` 手动消费或回传 `WindowInsets`；这会与 WebView 默认安全区处理冲突。`MainActivity.kt` 只负责 `enableEdgeToEdge()`。
+- `index.html` 使用 `viewport-fit=cover`；前端统一通过 `env(safe-area-inset-top/right/bottom/left)` 设置 `.app-shell`、抽屉、弹窗和移动端学习浮层的位置，并基于 `100dvh` 计算阅读工作区高度。Android WebView 若返回零 Insets，前端会通过 Android 平台标识强制保留顶部至少 40px、右侧至少 12px、底部至少 24px 的安全空白。
+- 词卡面板按屏幕宽度分层：桌面保留常驻可调宽右栏；小于 1200px 时默认收起并改为右侧覆盖式抽屉，可由“单词卡”按钮打开、面板内关闭按钮或遮罩点击收起；小于 760px 时抽屉占据阅读页可用宽度并避开底部导航，不再将桌面右栏硬塞入手机布局。
+- `useReaderLayout` 会在进入紧凑屏幕时自动收起词卡面板；从复习页定位已有卡片时，会切换到阅读页、展开词卡抽屉并定位相应卡片。
+- `bootstrap-android-studio-project.ps1` 在复制初始化模板后，会使用仓库的 `src-tauri\\gen\\android` 中 `MainActivity.kt` 覆盖目标工程入口，避免 C 盘模板里的旧入口重新带回过期 Insets 补丁。
+- 已验证：`npm.cmd run test:ui`（27 文件、97 测试）通过，`npm.cmd run build` 通过；`F:\\ReadingAgentAndroidStudio\\app\\build\\outputs\\apk\\debug\\app-debug.apk` 已于 2026-08-30 重建并通过包名、签名、zipalign、离线资源和 ARM64/x86_64 原生库校验。尚未完成真机状态栏、横竖屏、全面屏手势及抽屉交互验收。
+## 2026-08-30 Android 临时构建标识
+
+- 为确认 Android Studio 实际运行的是否为当前同步工程，工具栏右侧临时无条件显示 `测试构建 F · 20260830.5`。只要未显示该文字，就可确定手机未运行当前 F 盘同步产物。
+- 正式发布 Android 版本前，移除 `src/App.tsx` 的 `TEST_BUILD_LABEL` 常量、对应工具栏 JSX 和 `src/App.css` 的 `.android-build-badge` 样式。
+## 2026-08-30 开发工具迁移到 F 盘
+
+- C 盘开发工具目录已复制到 F 盘：Android SDK → `F:\\AndroidSdk`，Gradle → `F:\\AndroidBuildCache\\gradle`，npm 缓存 → `F:\\AndroidBuildCache\\npm-cache`，Cargo/Rustup → `F:\\Rust\\cargo` 与 `F:\\Rust\\rustup`，Android 初始化模板 → `F:\\AndroidTemplates\\ReadingAgentAndroidStudio`。
+- `F:\\ReadingAgentAndroidStudio\\local.properties` 已改为 `sdk.dir=F:/AndroidSdk`；用户级 `ANDROID_HOME`、`ANDROID_SDK_ROOT`、`GRADLE_USER_HOME`、`CARGO_HOME`、`RUSTUP_HOME` 与 `NPM_CONFIG_CACHE` 已持久化为 F 盘路径，用户 PATH 中的 Cargo 入口改为 `F:\\Rust\\cargo\\bin`。
+- `sync-android-studio-project.ps1` 默认 Gradle 缓存已改为 `F:\\AndroidBuildCache\\gradle`；`bootstrap-android-studio-project.ps1` 默认初始化模板已改为 F 盘模板。
+- Rust 的 `cargo.exe` 等命令是 rustup shim，复制时被 robocopy 跳过；已在 F 盘用指向 `rustup.exe` 的硬链接补齐。Gradle 正在使用的 `.lock` 文件被有意排除，不影响缓存可用性。
+- 验证通过：从 F 盘 SDK、Gradle、npm、Cargo/Rustup 环境运行 `cargo check --manifest-path src-tauri\\Cargo.toml`、`npm.cmd run test:ui`、`npm.cmd run build`、Android Debug 构建和 APK 基础校验均通过。
+- **尚未删除** C 盘原目录。必须先完全退出并重新打开 Android Studio，再确认 `F:\\ReadingAgentAndroidStudio` 可直接运行并显示 `测试构建 F · 20260830.5`；确认后才可删除 C 盘旧 SDK/缓存/模板以释放空间。
